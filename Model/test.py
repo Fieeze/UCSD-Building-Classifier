@@ -1,25 +1,14 @@
-"""Test the model on a dataset and print its accuracy.
+"""Test the model on Dataset/test and print its accuracy.
 
     python Model/test.py
-
-Expects one folder per building:  Dataset/test/Geisel_Library/img001.jpg ...
 """
 
-from torchvision import datasets, transforms
+from torchvision import datasets
 from sklearn.metrics import accuracy_score
 
-from model import net, IMAGE_SIZE
+from model import net, eval_transform, TEST_DIR, WEIGHTS
 
-DATA_DIR = "Dataset/test"
-WEIGHTS = "Model/best_model.pt"
-
-# Training must use this exact transform, or the accuracy means nothing.
-transform = transforms.Compose([
-    transforms.Resize((IMAGE_SIZE, IMAGE_SIZE)),
-    transforms.ToTensor(),
-])
-
-dataset = datasets.ImageFolder(DATA_DIR, transform=transform)
+dataset = datasets.ImageFolder(TEST_DIR, transform=eval_transform)
 y_true = [label for _, label in dataset.samples]
 
 net.initialize()

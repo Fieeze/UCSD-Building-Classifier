@@ -39,6 +39,28 @@ MAX_EPOCHS = 15
 LEARNING_RATE = 0.001
 DEVICE = "mps" if torch.backends.mps.is_available() else "cpu"
 
+TRAIN_DIR = "Dataset/train"
+TEST_DIR = "Dataset/test"
+WEIGHTS = "Model/best_model.pt"
+
+
+# --------------------------------------------------------- preprocessing ---
+# Defined here so train.py and test.py import the SAME objects. If the two
+# ever differ, accuracy becomes meaningless without anything visibly failing.
+
+train_transform = transforms.Compose([
+    transforms.Resize((IMAGE_SIZE, IMAGE_SIZE)),
+    transforms.RandomHorizontalFlip(),          # a mirrored building is still that building
+    transforms.ColorJitter(brightness=0.2, contrast=0.2),
+    transforms.ToTensor(),
+])
+
+# No randomness — evaluation has to be repeatable.
+eval_transform = transforms.Compose([
+    transforms.Resize((IMAGE_SIZE, IMAGE_SIZE)),
+    transforms.ToTensor(),
+])
+
 
 # ----------------------------------------------------------------- model ---
 
