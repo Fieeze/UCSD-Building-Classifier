@@ -35,7 +35,7 @@ NUM_CLASSES = 4          # how many buildings you are classifying
 # pool size of 4. MPS cannot do adaptive pooling when the sizes do not divide.
 IMAGE_SIZE = 256          # every photo is resized to IMAGE_SIZE x IMAGE_SIZE
 BATCH_SIZE = 32
-MAX_EPOCHS = 15
+MAX_EPOCHS = 40
 LEARNING_RATE = 0.001
 DEVICE = "mps" if torch.backends.mps.is_available() else "cpu"
 
