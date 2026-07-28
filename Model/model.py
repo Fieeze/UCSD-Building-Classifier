@@ -30,7 +30,7 @@ import matplotlib.pyplot as plt
 
 # ---------------------------------------------------------------- config ---
 
-NUM_CLASSES = 5           # how many buildings you are classifying
+NUM_CLASSES = 4          # how many buildings you are classifying
 # 256 (not 224) so the final feature map is 16x16, which divides evenly by the
 # pool size of 4. MPS cannot do adaptive pooling when the sizes do not divide.
 IMAGE_SIZE = 256          # every photo is resized to IMAGE_SIZE x IMAGE_SIZE
