@@ -1,5 +1,9 @@
 """CNN model for classifying UCSD buildings."""
 
+import re
+import shutil
+from pathlib import Path
+
 # --- core tensor / neural network ---
 import torch
 import torch.nn as nn
@@ -42,6 +46,30 @@ DEVICE = "mps" if torch.backends.mps.is_available() else "cpu"
 TRAIN_DIR = "Dataset/train"
 TEST_DIR = "Dataset/test"
 WEIGHTS = "Model/best_model.pt"
+
+
+def _clean_sync_conflicts(directory):
+    """Remove iCloud "<Building> 2" conflict-copy folders.
+
+    Dataset/train and Dataset/test live under an iCloud-synced Desktop, so
+    the sync daemon can drop in a numbered duplicate of a class folder at any
+    time, independent of when split_dataset.py last ran. ImageFolder treats
+    every subfolder as a class, so a stray empty duplicate crashes loading.
+    Any folder named "<sibling name> <digits>" is such a duplicate, never
+    real data, so it is safe to remove on every import.
+    """
+    path = Path(directory)
+    if not path.is_dir():
+        return
+    names = {p.name for p in path.iterdir() if p.is_dir()}
+    for name in names:
+        match = re.match(r"^(.+) \d+$", name)
+        if match and match.group(1) in names:
+            shutil.rmtree(path / name)
+
+
+for _dir in (TRAIN_DIR, TEST_DIR):
+    _clean_sync_conflicts(_dir)
 
 
 # --------------------------------------------------------- preprocessing ---
@@ -119,15 +147,15 @@ class SimpleCNN(nn.Module):
 # ------------------------------------------------------- skorch estimator ---
 
 net = NeuralNetClassifier(
-    module=SimpleCNN,
-    module__num_classes=NUM_CLASSES,
+    module=SimpleCNN,               #CNN(Previously defined)
+    module__num_classes=NUM_CLASSES,# NUM_CLASSES = 4
 
-    criterion=nn.CrossEntropyLoss,     # expects raw logits + integer labels
+    criterion=nn.CrossEntropyLoss,  
     optimizer=optim.AdamW,
 
-    lr=LEARNING_RATE,
-    max_epochs=MAX_EPOCHS,
-    batch_size=BATCH_SIZE,
+    lr=LEARNING_RATE,               #LEARNING RATE = 0.001
+    max_epochs=MAX_EPOCHS,          #MAX_EPOCHS = 40
+    batch_size=BATCH_SIZE,          #BATCH_SIZE = 32
 
     iterator_train__shuffle=True,
     device=DEVICE,

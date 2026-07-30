@@ -20,7 +20,7 @@ CV_FOLDS = 3
 
 PARAM_GRID = {
     "lr": [0.01, 0.001, 0.0001],
-    "batch_size": [16, 32],
+    "batch_size": [16, 32, 48],
 }
 
 train_folder = datasets.ImageFolder(TRAIN_DIR, transform=train_transform)

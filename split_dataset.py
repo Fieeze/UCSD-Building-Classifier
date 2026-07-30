@@ -20,7 +20,7 @@ RAW_DIR = Path("Dataset/raw")
 TRAIN_DIR = Path("Dataset/train")
 TEST_DIR = Path("Dataset/test")
 
-TEST_FRACTION = 0.2
+TEST_COUNT = 10         # fixed test images per building, not a fraction
 HASH_THRESHOLD = 5      # Hamming distance counted as "the same photo"
 SEED = 42
 
@@ -87,8 +87,8 @@ def main():
         groups = group_duplicates(files)
         rng.shuffle(groups)
 
-        # Fill test/ group by group until it reaches TEST_FRACTION.
-        target = len(files) * TEST_FRACTION
+        # Fill test/ group by group until it reaches TEST_COUNT.
+        target = TEST_COUNT
         test_files, train_files = [], []
         for group in groups:
             if len(test_files) < target:
@@ -105,6 +105,20 @@ def main():
         dupes = len(files) - len(groups)
         print(f"{building.name:<24}{len(files):>6}{len(train_files):>7}"
               f"{len(test_files):>6}{dupes:>7}")
+
+    # On an iCloud-synced Desktop, deleting and recreating train/test right
+    # before writing into them can race the sync daemon, which drops in
+    # "<Building> 2" conflict-copy folders. They are never real classes, so
+    # sweep anything that isn't one of this run's buildings.
+    expected = {b.name for b in buildings}
+    stray = 0
+    for split_dir in (TRAIN_DIR, TEST_DIR):
+        for child in split_dir.iterdir():
+            if child.is_dir() and child.name not in expected:
+                shutil.rmtree(child)
+                stray += 1
+    if stray:
+        print(f"(removed {stray} stray sync-conflict folder(s))")
 
     print("-" * 50)
     print(f"train -> {TRAIN_DIR}/<Building>/")
