@@ -6,6 +6,7 @@ numpy>=1.24
 Pillow>=10.0
 matplotlib>=3.7
 tqdm>=4.65
+streamlit>=1.30
 
 # Only needed by label_images.py, to open iPhone .HEIC photos.
 pillow-heif>=0.15
